@@ -54,7 +54,6 @@ func (i *Installer) Install(cfg *adapter.DirectInstallConfig) (string, error) {
 		log.Printf("[direct] running install command %d/%d: %s", j+1, len(cfg.InstallCommands), cmd)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-		defer cancel()
 
 		var execCmd *exec.Cmd
 		if strings.Contains(cmd, "&&") || strings.Contains(cmd, "||") || strings.Contains(cmd, "|") {
@@ -62,6 +61,7 @@ func (i *Installer) Install(cfg *adapter.DirectInstallConfig) (string, error) {
 		} else {
 			parts := strings.Fields(cmd)
 			if len(parts) == 0 {
+				cancel()
 				continue
 			}
 			execCmd = exec.CommandContext(ctx, parts[0], parts[1:]...)
@@ -78,6 +78,7 @@ func (i *Installer) Install(cfg *adapter.DirectInstallConfig) (string, error) {
 		}
 
 		out, err := execCmd.CombinedOutput()
+		cancel()
 		if err != nil {
 			return "", fmt.Errorf("install command failed: %w (%s)", err, string(out))
 		}
@@ -192,6 +193,19 @@ func (i *Installer) startService(cfg *adapter.DirectInstallConfig) (string, erro
 	pid := fmt.Sprintf("pid-%d", cmd.Process.Pid)
 	log.Printf("[direct] started process with PID: %d", cmd.Process.Pid)
 	return pid, nil
+}
+
+// Restart restarts the agent service.
+// PID-based processes cannot be restarted without the original config; use redeploy instead.
+func (i *Installer) Restart(serviceID string) error {
+	if strings.HasPrefix(serviceID, "pid-") {
+		return fmt.Errorf("cannot restart PID-based process; redeploy instead")
+	}
+	out, err := exec.Command("systemctl", "restart", serviceID).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("systemctl restart: %w (%s)", err, string(out))
+	}
+	return nil
 }
 
 // Stop stops the agent service.

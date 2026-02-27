@@ -1,23 +1,13 @@
 package store
 
 import (
-	"database/sql"
 	"time"
 
+	"github.com/NeoTheCapt/clawfleet/internal/model"
 	"github.com/NeoTheCapt/clawfleet/internal/util"
 )
 
-type IMOutboxItem struct {
-	ID             string    `json:"id"`
-	ConversationID string    `json:"conversation_id"`
-	ToAgentID      string    `json:"to_agent_id"`
-	Body           string    `json:"body"`
-	Status         string    `json:"status"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-}
-
-func (s *Store) ListIMOutbox(agentID, status string, limit int) ([]*IMOutboxItem, error) {
+func (s *Store) ListIMOutbox(agentID, status string, limit int) ([]*model.IMOutbox, error) {
 	if limit <= 0 {
 		limit = 20
 	}
@@ -37,9 +27,9 @@ func (s *Store) ListIMOutbox(agentID, status string, limit int) ([]*IMOutboxItem
 	}
 	defer rows.Close()
 
-	out := make([]*IMOutboxItem, 0)
+	out := make([]*model.IMOutbox, 0)
 	for rows.Next() {
-		var it IMOutboxItem
+		var it model.IMOutbox
 		if err := rows.Scan(&it.ID, &it.ConversationID, &it.ToAgentID, &it.Body, &it.Status, &it.CreatedAt, &it.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -48,8 +38,8 @@ func (s *Store) ListIMOutbox(agentID, status string, limit int) ([]*IMOutboxItem
 	return out, nil
 }
 
-func (s *Store) GetIMOutboxItem(id string) (*IMOutboxItem, error) {
-	var it IMOutboxItem
+func (s *Store) GetIMOutboxItem(id string) (*model.IMOutbox, error) {
+	var it model.IMOutbox
 	err := s.db.QueryRow(`SELECT id,conversation_id,to_agent_id,body,status,created_at,updated_at FROM im_outbox WHERE id=?`, id).
 		Scan(&it.ID, &it.ConversationID, &it.ToAgentID, &it.Body, &it.Status, &it.CreatedAt, &it.UpdatedAt)
 	if err != nil {
@@ -79,7 +69,7 @@ func (s *Store) FailIMOutbox(id string) error {
 }
 
 // ListPendingIMOutbox returns pending outbox items across all agents.
-func (s *Store) ListPendingIMOutbox(limit int) ([]*IMOutboxItem, error) {
+func (s *Store) ListPendingIMOutbox(limit int) ([]*model.IMOutbox, error) {
 	if limit <= 0 {
 		limit = 20
 	}
@@ -95,9 +85,9 @@ func (s *Store) ListPendingIMOutbox(limit int) ([]*IMOutboxItem, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	out := make([]*IMOutboxItem, 0)
+	out := make([]*model.IMOutbox, 0)
 	for rows.Next() {
-		var it IMOutboxItem
+		var it model.IMOutbox
 		if err := rows.Scan(&it.ID, &it.ConversationID, &it.ToAgentID, &it.Body, &it.Status, &it.CreatedAt, &it.UpdatedAt); err != nil {
 			return nil, err
 		}
@@ -116,10 +106,3 @@ func (s *Store) ClaimIMOutbox(id string) (bool, error) {
 	n, _ := res.RowsAffected()
 	return n > 0, nil
 }
-
-func (s *Store) EnsureIMOutboxTable() error {
-	// legacy placeholder: table is created in migrations
-	return nil
-}
-
-var _ = sql.ErrNoRows

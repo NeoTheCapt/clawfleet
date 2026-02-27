@@ -34,12 +34,7 @@ func restartRuntime(ctx context.Context, cm container.ContainerManagerInterface,
 	if detectRuntime(containerID) == runtimeDocker {
 		return cm.Restart(ctx, containerID)
 	}
-	// Direct: best-effort stop then install/start
-	_ = inst.Stop(containerID)
-	if _, err := inst.Install(nil); err != nil {
-		return err
-	}
-	return nil
+	return inst.Restart(containerID)
 }
 
 // removeRuntime removes either docker container/name or direct service.

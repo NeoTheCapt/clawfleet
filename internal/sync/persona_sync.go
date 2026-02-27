@@ -12,8 +12,7 @@ import (
 
 // PersonaSyncEngine 人设同步引擎
 type PersonaSyncEngine struct {
-	store   *store.Store
-	workers int
+	store *store.Store
 }
 
 // SyncOptions 同步选项
@@ -24,11 +23,8 @@ type SyncOptions struct {
 }
 
 // NewPersonaSyncEngine 创建新的同步引擎
-func NewPersonaSyncEngine(store *store.Store, workers int) *PersonaSyncEngine {
-	return &PersonaSyncEngine{
-		store:   store,
-		workers: workers,
-	}
+func NewPersonaSyncEngine(s *store.Store) *PersonaSyncEngine {
+	return &PersonaSyncEngine{store: s}
 }
 
 // SyncPositionPersonaToAllAgents 同步职位人设到所有分配的 agents
@@ -205,7 +201,7 @@ func (pse *PersonaSyncEngine) triggerAgentReload(agent *model.AgentInstance, sys
 	// 这里创建一个任务让节点 agent 执行人设重载
 
 	reloadTask := &model.Task{
-		ID:     fmt.Sprintf("task_reload_%s_%d", agent.ID, time.Now().Unix()),
+		ID:     fmt.Sprintf("task_reload_%s_%d", agent.ID, time.Now().UnixNano()),
 		NodeID: agent.NodeID,
 		Action: "reload_persona",
 		Payload: map[string]interface{}{
@@ -283,7 +279,7 @@ func (pse *PersonaSyncEngine) triggerAgentRedeploy(agent *model.AgentInstance) e
 	// Stop old container if known
 	if agent.ContainerID != "" {
 		stopTask := &model.Task{
-			ID:     fmt.Sprintf("task_stop_%s_%d", agent.ID, time.Now().Unix()),
+			ID:     fmt.Sprintf("task_stop_%s_%d", agent.ID, time.Now().UnixNano()),
 			NodeID: agent.NodeID,
 			Action: "stop_agent",
 			Payload: map[string]interface{}{
@@ -304,7 +300,7 @@ func (pse *PersonaSyncEngine) triggerAgentRedeploy(agent *model.AgentInstance) e
 
 	// Deploy with fresh config (includes updated channel token)
 	deployTask := &model.Task{
-		ID:     fmt.Sprintf("task_deploy_%s_%d", agent.ID, time.Now().Unix()),
+		ID:     fmt.Sprintf("task_deploy_%s_%d", agent.ID, time.Now().UnixNano()),
 		NodeID: agent.NodeID,
 		Action: "deploy_agent",
 		Payload: map[string]interface{}{

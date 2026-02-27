@@ -35,7 +35,7 @@ func New(addr string, s *store.Store, sched *scheduler.Scheduler, broker *comms.
 	personaGen := persona.NewGenerator(s)
 
 	// 初始化同步引擎
-	syncEngine := sync.NewPersonaSyncEngine(s, 3)
+	syncEngine := sync.NewPersonaSyncEngine(s)
 
 	srv := &Server{
 		store:      s,

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/NeoTheCapt/clawfleet/internal/model"
-	"github.com/NeoTheCapt/clawfleet/internal/store"
 	"github.com/NeoTheCapt/clawfleet/internal/util"
 )
 
@@ -56,7 +55,7 @@ func (s *Scheduler) processIMOutboxOnce() {
 	}
 }
 
-func (s *Scheduler) handleIMOutboxItem(it *store.IMOutboxItem) error {
+func (s *Scheduler) handleIMOutboxItem(it *model.IMOutbox) error {
 	agentID := strings.TrimSpace(it.ToAgentID)
 	if agentID == "" {
 		return s.store.FailIMOutbox(it.ID)

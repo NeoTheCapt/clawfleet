@@ -24,10 +24,6 @@ func New(image string) *Adapter {
 
 func (a *Adapter) Name() string { return "openclaw" }
 
-func (a *Adapter) SupportedModes() []adapter.DeployMode {
-	return []adapter.DeployMode{adapter.DeployModeDocker, adapter.DeployModeDirect}
-}
-
 // generateToken creates a random hex token for gateway auth
 func generateToken() string {
 	// 16 bytes is plenty for gateway auth; reuse shared util.
@@ -234,7 +230,6 @@ func (a *Adapter) InstallConfig(instance *model.AgentInstance) (*adapter.DirectI
 			"npm install -g openclaw@latest",
 		},
 		StartCommand: "openclaw gateway --allow-unconfigured --bind lan",
-		StopCommand:  "openclaw gateway stop",
 		Env:          env,
 		WorkDir:      workDir,
 		ConfigFiles:  map[string]string{},
@@ -242,5 +237,3 @@ func (a *Adapter) InstallConfig(instance *model.AgentInstance) (*adapter.DirectI
 		ServiceName:  serviceName,
 	}, nil
 }
-
-func (a *Adapter) HealthCheck(containerID string) (bool, error) { return true, nil }

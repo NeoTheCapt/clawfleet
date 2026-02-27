@@ -2,7 +2,6 @@ package container
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os/exec"
@@ -147,60 +146,6 @@ func (m *Manager) Logs(ctx context.Context, containerID string, tail int) (strin
 		return "", fmt.Errorf("logs: %w (%s)", err, string(out))
 	}
 	return string(out), nil
-}
-
-// ListManaged lists all containers managed by clawfleet.
-func (m *Manager) ListManaged(ctx context.Context) ([]ManagedContainer, error) {
-	out, err := exec.CommandContext(ctx, "docker", "ps", "-a",
-		"--filter", "label=managed-by=clawfleet",
-		"--format", "{{json .}}").CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("list: %w (%s)", err, string(out))
-	}
-
-	var result []ManagedContainer
-	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-		if line == "" {
-			continue
-		}
-		var c struct {
-			ID     string `json:"ID"`
-			Names  string `json:"Names"`
-			Image  string `json:"Image"`
-			Status string `json:"Status"`
-			State  string `json:"State"`
-			Labels string `json:"Labels"`
-		}
-		if err := json.Unmarshal([]byte(line), &c); err != nil {
-			continue
-		}
-		// Extract agent ID from labels
-		agentID := ""
-		for _, pair := range strings.Split(c.Labels, ",") {
-			if strings.HasPrefix(pair, "clawfleet.agent.id=") {
-				agentID = strings.TrimPrefix(pair, "clawfleet.agent.id=")
-			}
-		}
-		result = append(result, ManagedContainer{
-			ID:      c.ID,
-			Name:    c.Names,
-			Image:   c.Image,
-			Status:  c.Status,
-			State:   c.State,
-			AgentID: agentID,
-		})
-	}
-	return result, nil
-}
-
-// ManagedContainer holds info about a clawfleet-managed container.
-type ManagedContainer struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Image   string `json:"image"`
-	Status  string `json:"status"`
-	State   string `json:"state"`
-	AgentID string `json:"agent_id"`
 }
 
 func SanitizeName(name string) string {

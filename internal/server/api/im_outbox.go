@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/NeoTheCapt/clawfleet/internal/model"
-	"github.com/NeoTheCapt/clawfleet/internal/store"
 )
 
 // /api/im/outbox (agent-only)
@@ -59,7 +58,7 @@ func (s *Server) handleIMOutbox(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if items == nil {
-		items = []*store.IMOutboxItem{}
+		items = []*model.IMOutbox{}
 	}
 	writeJSON(w, http.StatusOK, items)
 }

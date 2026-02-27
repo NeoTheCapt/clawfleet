@@ -20,10 +20,6 @@ func New(image string) *Adapter {
 
 func (a *Adapter) Name() string { return "nanobot" }
 
-func (a *Adapter) SupportedModes() []adapter.DeployMode {
-	return []adapter.DeployMode{adapter.DeployModeDocker, adapter.DeployModeDirect}
-}
-
 func (a *Adapter) ContainerConfig(instance *model.AgentInstance) (*adapter.ContainerConfig, error) {
 	env := adapter.BaseEnv(instance)
 
@@ -75,7 +71,6 @@ func (a *Adapter) InstallConfig(instance *model.AgentInstance) (*adapter.DirectI
 			"pip install nanobot-ai",
 		},
 		StartCommand: "nanobot gateway",
-		StopCommand:  "pkill -f 'nanobot gateway'",
 		Env:          env,
 		WorkDir:      workDir,
 		ConfigFiles:  map[string]string{},
@@ -83,5 +78,3 @@ func (a *Adapter) InstallConfig(instance *model.AgentInstance) (*adapter.DirectI
 		ServiceName:  serviceName,
 	}, nil
 }
-
-func (a *Adapter) HealthCheck(containerID string) (bool, error) { return true, nil }

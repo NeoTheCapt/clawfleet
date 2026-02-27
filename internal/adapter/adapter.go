@@ -2,14 +2,6 @@ package adapter
 
 import "github.com/NeoTheCapt/clawfleet/internal/model"
 
-// DeployMode determines how an agent is deployed
-type DeployMode string
-
-const (
-	DeployModeDocker  DeployMode = "docker"
-	DeployModeDirect  DeployMode = "direct"
-)
-
 // ContainerConfig describes how to run an agent container.
 type ContainerConfig struct {
 	Image      string            `json:"image"`
@@ -30,8 +22,6 @@ type DirectInstallConfig struct {
 	InstallCommands []string
 	// Command to start the agent
 	StartCommand    string
-	// Command to stop the agent  
-	StopCommand     string
 	// Environment variables
 	Env             map[string]string
 	// Working directory
@@ -47,18 +37,12 @@ type DirectInstallConfig struct {
 type Adapter interface {
 	// Name returns the adapter name (e.g. "openclaw").
 	Name() string
-	
-	// SupportedModes returns the deployment modes this adapter supports
-	SupportedModes() []DeployMode
-	
+
 	// Docker mode
 	ContainerConfig(instance *model.AgentInstance) (*ContainerConfig, error)
-	
+
 	// Direct install mode
 	InstallConfig(instance *model.AgentInstance) (*DirectInstallConfig, error)
-
-	// HealthCheck checks if the agent is healthy.
-	HealthCheck(containerID string) (bool, error)
 }
 
 // Registry holds all registered adapters.

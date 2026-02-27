@@ -91,27 +91,6 @@ func (m *MockManager) Logs(ctx context.Context, containerID string, tail int) (s
 	return "[mock] no real logs available\n", nil
 }
 
-func (m *MockManager) ListManaged(ctx context.Context) ([]ManagedContainer, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	var result []ManagedContainer
-	for _, c := range m.containers {
-		agentID := ""
-		if c.Labels != nil {
-			agentID = c.Labels["clawfleet.agent.id"]
-		}
-		result = append(result, ManagedContainer{
-			ID:      c.ID,
-			Name:    c.Name,
-			Image:   c.Image,
-			Status:  c.State,
-			State:   c.State,
-			AgentID: agentID,
-		})
-	}
-	return result, nil
-}
-
 // ContainerManagerInterface is the interface both Manager and MockManager implement.
 type ContainerManagerInterface interface {
 	Create(ctx context.Context, name string, cfg *adapter.ContainerConfig) (string, error)
@@ -120,7 +99,6 @@ type ContainerManagerInterface interface {
 	Remove(ctx context.Context, containerID string) error
 	Status(ctx context.Context, containerID string) (string, error)
 	Logs(ctx context.Context, containerID string, tail int) (string, error)
-	ListManaged(ctx context.Context) ([]ManagedContainer, error)
 }
 
 // Ensure both types implement the interface

@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+	"strings"
 )
 
 // These are set via -ldflags at build time.
@@ -29,6 +30,12 @@ func String() string {
 	if len(c) > 8 {
 		c = c[:8]
 	}
-	bt := i.BuildTime
-	return fmt.Sprintf("%s %s (%s) %s", i.Component, i.Version, c, bt)
+	parts := []string{i.Component, i.Version}
+	if c != "" {
+		parts = append(parts, fmt.Sprintf("(%s)", c))
+	}
+	if i.BuildTime != "" {
+		parts = append(parts, i.BuildTime)
+	}
+	return strings.Join(parts, " ")
 }
