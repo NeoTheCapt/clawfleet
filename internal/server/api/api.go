@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/NeoTheCapt/clawfleet/internal/util"
@@ -175,13 +176,25 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleSPA(w http.ResponseWriter, r *http.Request) {
 	distDir := "web/dist"
 	path := r.URL.Path
+
+	// Never let SPA fallback swallow unknown API routes.
+	if strings.HasPrefix(path, "/api/") {
+		writeNotFound(w, "not found")
+		return
+	}
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
 	if path == "/" {
 		path = "/index.html"
 	}
 
 	// Try to serve the file directly
 	filePath := distDir + path
-	if _, err := http.Dir(distDir).Open(path); err == nil {
+	if f, err := http.Dir(distDir).Open(path); err == nil {
+		_ = f.Close()
 		if path == "/index.html" {
 			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 			w.Header().Set("Pragma", "no-cache")

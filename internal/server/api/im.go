@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/NeoTheCapt/clawfleet/internal/model"
+	"github.com/NeoTheCapt/clawfleet/internal/server/auth"
 	"github.com/NeoTheCapt/clawfleet/internal/store"
 )
 
@@ -23,7 +24,7 @@ type imPrincipalContextKey struct{}
 func (s *Server) requireIMAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// JWT wins if both JWT and X-IM-Key are present.
-		if token := extractTokenFromRequest(r); token != "" {
+		if token := auth.ExtractToken(r); token != "" {
 			claims, err := s.auth.ValidateToken(token)
 			if err != nil {
 				writeError(w, http.StatusUnauthorized, "invalid token")
@@ -51,17 +52,6 @@ func (s *Server) requireIMAuth(next http.HandlerFunc) http.HandlerFunc {
 		p := imPrincipal{SenderType: string(model.IMMemberTypeAgent), SenderID: agentID}
 		next(w, r.WithContext(context.WithValue(r.Context(), imPrincipalContextKey{}, p)))
 	}
-}
-
-func extractTokenFromRequest(r *http.Request) string {
-	auth := r.Header.Get("Authorization")
-	if strings.HasPrefix(auth, "Bearer ") {
-		return strings.TrimPrefix(auth, "Bearer ")
-	}
-	if cookie, err := r.Cookie("token"); err == nil {
-		return cookie.Value
-	}
-	return r.URL.Query().Get("token")
 }
 
 func getIMPrincipal(r *http.Request) (imPrincipal, bool) {

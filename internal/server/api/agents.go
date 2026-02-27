@@ -118,24 +118,13 @@ func (s *Server) handleAgentByID(w http.ResponseWriter, r *http.Request) {
 		s.handleAgentRedeploy(w, r, id)
 		return
 	case "persona":
-		s.handleAgentPersona(w, r)
+		s.handleAgentPersona(w, r, id)
 		return
-	case "persona-rollback":
-		// 提取 snapshot ID
-		path := strings.TrimPrefix(r.URL.Path, "/api/agents/")
-		parts := strings.Split(path, "/")
-		var snapshotID string
-		if len(parts) >= 3 {
-			snapshotID = parts[2]
-		}
-		if snapshotID != "" {
-			s.handlePersonaRollback(w, r, id, snapshotID)
-		} else {
-			s.handlePersonaRollbackList(w, r, id)
-		}
+	case "persona-rollback", "persona-rollback/":
+		s.handlePersonaRollbackList(w, r, id)
 		return
 	case "persona-snapshots":
-		s.handlePersonaSnapshots(w, r)
+		s.handlePersonaSnapshots(w, r, id)
 		return
 	case "debug":
 		s.handleAgentDebug(w, r, id)
@@ -145,6 +134,19 @@ func (s *Server) handleAgentByID(w http.ResponseWriter, r *http.Request) {
 		return
 	case "im-key/rotate":
 		s.handleAgentIMKeyRotate(w, r, id)
+		return
+	}
+	if strings.HasPrefix(subRoute, "persona-rollback/") {
+		snapshotID := strings.TrimSpace(strings.TrimPrefix(subRoute, "persona-rollback/"))
+		if snapshotID == "" {
+			s.handlePersonaRollbackList(w, r, id)
+			return
+		}
+		if strings.Contains(snapshotID, "/") {
+			writeBadRequest(w, "invalid snapshot id")
+			return
+		}
+		s.handlePersonaRollback(w, r, id, snapshotID)
 		return
 	}
 

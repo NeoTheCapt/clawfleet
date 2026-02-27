@@ -12,7 +12,7 @@ export function useLoader(fetcher) {
       return await fetcher()
     } catch (e) {
       error.value = e?.message || String(e)
-      throw e
+      return null
     } finally {
       loading.value = false
     }

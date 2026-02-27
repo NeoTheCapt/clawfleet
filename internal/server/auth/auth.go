@@ -216,7 +216,7 @@ func (c *Config) CheckAnyAgentKey(key string) bool {
 // RequireJWT returns middleware that validates JWT from Authorization header or cookie.
 func (c *Config) RequireJWT(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := extractToken(r)
+		token := ExtractToken(r)
 		if token == "" {
 			http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 			return
@@ -241,7 +241,8 @@ func (c *Config) RequireAgentKey(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func extractToken(r *http.Request) string {
+// ExtractToken returns token from Authorization header, cookie or query parameter.
+func ExtractToken(r *http.Request) string {
 	// Check Authorization header first
 	auth := r.Header.Get("Authorization")
 	if strings.HasPrefix(auth, "Bearer ") {

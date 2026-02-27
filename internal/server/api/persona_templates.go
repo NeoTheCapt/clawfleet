@@ -376,16 +376,7 @@ func (s *Server) handlePersonaGenerate(w http.ResponseWriter, r *http.Request) {
 // Agent Persona Management API
 // ═══════════════════════════════════════════════════════════
 
-func (s *Server) handleAgentPersona(w http.ResponseWriter, r *http.Request) {
-	// Extract agent ID from URL: /api/agents/{id}/persona
-	path := strings.TrimPrefix(r.URL.Path, "/api/agents/")
-	parts := strings.Split(path, "/")
-	if len(parts) < 2 || parts[1] != "persona" {
-		writeBadRequest(w, "invalid path")
-		return
-	}
-	agentID := parts[0]
-
+func (s *Server) handleAgentPersona(w http.ResponseWriter, r *http.Request, agentID string) {
 	switch r.Method {
 	case http.MethodGet:
 		// Get agent persona status
@@ -568,16 +559,7 @@ func (s *Server) handlePersonaRollbackList(w http.ResponseWriter, r *http.Reques
 }
 
 // handlePersonaSnapshots lists snapshots for an agent
-func (s *Server) handlePersonaSnapshots(w http.ResponseWriter, r *http.Request) {
-	// Extract agent ID from URL: /api/agents/{id}/persona-snapshots
-	path := strings.TrimPrefix(r.URL.Path, "/api/agents/")
-	parts := strings.Split(path, "/")
-	if len(parts) < 2 || parts[1] != "persona-snapshots" {
-		writeBadRequest(w, "invalid path")
-		return
-	}
-	agentID := parts[0]
-
+func (s *Server) handlePersonaSnapshots(w http.ResponseWriter, r *http.Request, agentID string) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
