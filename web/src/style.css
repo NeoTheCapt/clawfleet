@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .badge {
+    @apply inline-block px-2 py-0.5 rounded-xl text-xs font-medium;
+  }
+  .badge-online, .badge-running, .badge-active {
+    background: #0d2818; color: #3fb950;
+  }
+  .badge-offline, .badge-error {
+    background: #3d1214; color: #f85149;
+  }
+  .badge-pending, .badge-in_progress {
+    background: #1c1c2e; color: #8b8bb5;
+  }
+  .badge-creating, .badge-medium {
+    background: #2d1b00; color: #d29922;
+  }
+  .badge-stopped, .badge-completed, .badge-low {
+    @apply bg-bg-hover text-text-muted;
+  }
+  .badge-high, .badge-critical {
+    background: #3d1214; color: #f85149;
+  }
+  .agent-type {
+    @apply text-xs px-2 py-0.5 rounded;
+  }
+  .agent-type-openclaw {
+    background: #1a2332; color: #58a6ff;
+  }
+  .agent-type-zeroclaw {
+    background: #1a2332; color: #a5d6ff;
+  }
+  .agent-type-nanobot {
+    background: #272118; color: #d29922;
+  }
+}
+
+/* Toast animation */
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+@keyframes fadeOut { from { opacity:1 } to { opacity:0 } }
+.toast-enter {
+  animation: fadeIn 0.3s, fadeOut 0.3s 2.5s;
+}

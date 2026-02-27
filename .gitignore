@@ -1,0 +1,79 @@
+# Secrets & credentials
+.secrets/
+.env
+.env.*
+*.env
+!.env.example
+.envrc
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.kdbx
+id_rsa
+id_ed25519
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Build outputs / binaries
+/dist/
+/bin/
+/clawfleet-server
+/clawfleet-node
+/fleetctl
+*.exe
+*.out
+coverage.out
+coverage.txt
+coverage/
+
+# Archives / release bundles
+*.tgz
+*.tar.gz
+
+# Logs
+*.log
+
+# Runtime state
+state.json
+node.log
+/tmp/
+*.pid
+*.seed
+.cache-loader/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Go
+vendor/
+*.test
+
+# Node
+node_modules/
+.cache/
+web/dist/
+web/node_modules/
+web/.env
+web/.env.*
+!web/.env.example
+
+# Deploy artifacts (server-specific configs)
+config/node.yaml
+deploy/
